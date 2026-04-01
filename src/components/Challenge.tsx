@@ -23,8 +23,7 @@ export default function Challenge({ game, myPseudo }: ChallengeProps) {
   const isChallenger = myPseudo === game.challenger;
   const isTarget = myPseudo === game.target;
   const isCritical = timeLeft <= 3 && timeLeft > 0;
-  const isEnergyIntelRound =
-    game.category === 'Energy Intel' && game.question_options.length > 0 && game.correct_option_index >= 0;
+  const isMultipleChoiceRound = game.question_options.length > 0 && game.correct_option_index >= 0;
   const hasSelectedOption = game.selected_option_index >= 0;
   const computedSuccess = hasSelectedOption && game.selected_option_index === game.correct_option_index;
 
@@ -100,6 +99,8 @@ export default function Challenge({ game, myPseudo }: ChallengeProps) {
         target: '',
         category: '',
         question_text: '',
+        flag_url: '',
+        math_expression: '',
         question_options: [],
         correct_option_index: -1,
         selected_option_index: -1,
@@ -115,7 +116,7 @@ export default function Challenge({ game, myPseudo }: ChallengeProps) {
   };
 
   const handleSelectOption = async (index: number) => {
-    if (!isTarget || !isEnergyIntelRound) return;
+    if (!isTarget || !isMultipleChoiceRound) return;
     if (game.status !== 'active') return;
     if (hasSelectedOption) return;
 
@@ -161,6 +162,8 @@ export default function Challenge({ game, myPseudo }: ChallengeProps) {
         target: '',
         category: '',
         question_text: '',
+        flag_url: '',
+        math_expression: '',
         question_options: [],
         correct_option_index: -1,
         selected_option_index: -1,
@@ -180,7 +183,7 @@ export default function Challenge({ game, myPseudo }: ChallengeProps) {
   }, [timeLeft, game.timer_limit]);
 
   const showManualScoreButtons =
-    isChallenger && !isEnergyIntelRound && (game.status === 'active' || game.status === 'finished');
+    isChallenger && !isMultipleChoiceRound && (game.status === 'active' || game.status === 'finished');
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-[#F0F0F0] px-4 py-6">
@@ -197,12 +200,22 @@ export default function Challenge({ game, myPseudo }: ChallengeProps) {
             </div>
           </div>
           <p className="text-base text-[#F0F0F0] leading-relaxed mt-4">{game.question_text}</p>
+          {game.flag_url && (
+            <img
+              src={game.flag_url}
+              alt="Drapeau du pays a deviner"
+              className="mx-auto mt-4 w-40 h-auto rounded-md border border-[#2c2c2c]"
+            />
+          )}
+          {game.math_expression && (
+            <p className="text-sm text-[#cfcfcf] mt-3">{game.math_expression}</p>
+          )}
           <p className="text-sm mt-3 text-[#2DD4A0]">
             Repondant: <strong>{game.target}</strong> ({PLAYER_ANIMAL[game.target]})
           </p>
         </section>
 
-        {isEnergyIntelRound && (
+        {isMultipleChoiceRound && (
           <section className="card">
             <p className="text-xs uppercase tracking-widest text-[#888888] mb-3">Choix multiple</p>
             <div className="grid grid-cols-1 gap-2">

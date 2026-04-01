@@ -174,6 +174,8 @@ export default function Dashboard() {
         score_pending: false,
         category: '',
         question_text: '',
+        flag_url: '',
+        math_expression: '',
         question_options: [],
         correct_option_index: -1,
         selected_option_index: -1,
@@ -198,6 +200,8 @@ export default function Dashboard() {
       await updateDoc(doc(db, 'games', 'active_duel'), {
         session_mode: 'playing',
         needs_coin_toss: false,
+        flag_url: '',
+        math_expression: '',
         question_options: [],
         correct_option_index: -1,
         selected_option_index: -1,

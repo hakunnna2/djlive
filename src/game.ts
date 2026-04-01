@@ -2,7 +2,14 @@ import type { FieldValue, Timestamp } from 'firebase/firestore';
 
 export type Player = 'DoDo' | 'JoJo';
 
-export type QuestionCategory = 'Fast & Furious' | 'Dilemme' | 'Energy Intel' | 'Espion Géo' | 'Perso';
+export type QuestionCategory =
+  | 'Fast & Furious'
+  | 'Dilemme'
+  | 'Energy Intel'
+  | 'Espion Géo'
+  | 'Perso'
+  | 'Drapeaux'
+  | 'Maths';
 
 export interface CategoryInfo {
   id: QuestionCategory;
@@ -48,6 +55,20 @@ export const CATEGORIES: Record<QuestionCategory, CategoryInfo> = {
     description: 'Questions personnelles. Révèle-toi! Pas de bonnes/mauvaises réponses.',
     color: '#EC4899',
   },
+  'Drapeaux': {
+    id: 'Drapeaux',
+    emoji: '🏁',
+    name: 'Drapeaux',
+    description: 'Reconnais le pays a partir du drapeau.',
+    color: '#22C55E',
+  },
+  'Maths': {
+    id: 'Maths',
+    emoji: '🧮',
+    name: 'Maths',
+    description: 'Calcul mental, logique et problemes rapides.',
+    color: '#A855F7',
+  },
 };
 
 export interface GameData {
@@ -55,6 +76,8 @@ export interface GameData {
   target: Player;
   category: string;
   question_text: string;
+  flag_url: string;
+  math_expression: string;
   question_options: string[];
   correct_option_index: number;
   selected_option_index: number;
@@ -94,6 +117,8 @@ export const DEFAULT_GAME: GameData = {
   target: 'JoJo',
   category: '',
   question_text: '',
+  flag_url: '',
+  math_expression: '',
   question_options: [],
   correct_option_index: -1,
   selected_option_index: -1,

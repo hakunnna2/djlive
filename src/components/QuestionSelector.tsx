@@ -1,7 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import { isMultipleChoiceQuestion, questions, type Question } from '../questions.ts';
+import {
+  isFlagQuestion,
+  isMathQuestion,
+  isMultipleChoiceQuestion,
+  questions,
+  type Question,
+} from '../questions.ts';
 import { CATEGORIES, type GameData, type Player, type QuestionCategory } from '../game.ts';
 
 interface QuestionSelectorProps {
@@ -40,12 +46,16 @@ export default function QuestionSelector({ myPseudo, game }: QuestionSelectorPro
     try {
       const questionOptions = isMultipleChoiceQuestion(selectedQuestion) ? selectedQuestion.options : [];
       const correctOptionIndex = isMultipleChoiceQuestion(selectedQuestion) ? selectedQuestion.correctOptionIndex : -1;
+      const flagUrl = isFlagQuestion(selectedQuestion) ? selectedQuestion.flagUrl : '';
+      const mathExpression = isMathQuestion(selectedQuestion) ? selectedQuestion.mathExpression : '';
 
       await updateDoc(doc(db, 'games', 'active_duel'), {
         challenger: myPseudo,
         target,
         category: selectedCategory,
         question_text: selectedQuestion.text,
+        flag_url: flagUrl,
+        math_expression: mathExpression,
         question_options: questionOptions,
         correct_option_index: correctOptionIndex,
         selected_option_index: -1,
@@ -89,7 +99,17 @@ export default function QuestionSelector({ myPseudo, game }: QuestionSelectorPro
       {selectedQuestion && (
         <div className="card mb-4 bg-[#111111] border border-[#2c2c2c]">
           <p className="text-xs text-[#888888] uppercase tracking-wider mb-2">Question tiree</p>
+          {isFlagQuestion(selectedQuestion) && (
+            <img
+              src={selectedQuestion.flagUrl}
+              alt="Drapeau"
+              className="w-28 h-auto rounded-md border border-[#2c2c2c] mb-3"
+            />
+          )}
           <p className="text-base text-[#F0F0F0] leading-relaxed">{selectedQuestion.text}</p>
+          {isMathQuestion(selectedQuestion) && selectedQuestion.mathExpression && (
+            <p className="text-sm text-[#bfbfbf] mt-2">{selectedQuestion.mathExpression}</p>
+          )}
           {isMultipleChoiceQuestion(selectedQuestion) && (
             <ul className="mt-3 space-y-2">
               {selectedQuestion.options.map((option, index) => (

@@ -50,6 +50,8 @@ service cloud.firestore {
         'target',
         'category',
         'question_text',
+        'flag_url',
+        'math_expression',
         'question_options',
         'correct_option_index',
         'selected_option_index',
@@ -75,6 +77,8 @@ service cloud.firestore {
         && isPlayer(data.target)
         && data.category is string
         && data.question_text is string
+        && data.flag_url is string
+        && data.math_expression is string
         && (data.question_options == null || data.question_options is list)
         && (data.correct_option_index == null || (data.correct_option_index is int && data.correct_option_index >= -1 && data.correct_option_index <= 10))
         && (data.selected_option_index == null || (data.selected_option_index is int && data.selected_option_index >= -1 && data.selected_option_index <= 10))
