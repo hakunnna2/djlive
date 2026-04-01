@@ -1,0 +1,126 @@
+:root {
+  --bg-main: #0f0f0f;
+  --bg-surface: #1a1a1a;
+  --accent-dodo: #ff6b35;
+  --accent-jojo: #2dd4a0;
+  --text-main: #f0f0f0;
+  --text-muted: #888888;
+  --danger: #ff3b3b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--bg-main);
+  color: var(--text-main);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+  background: var(--bg-surface);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.btn {
+  border: 0;
+  border-radius: 12px;
+  padding: 14px 28px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: var(--accent-dodo);
+  color: #ffffff;
+}
+
+.btn-success {
+  background: #2dd4a0;
+  color: #072318;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #ffffff;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.timer-critical {
+  color: var(--danger) !important;
+  animation: timer-pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes timer-pulse {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(255, 59, 59, 0.2));
+  }
+  50% {
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 8px rgba(255, 59, 59, 0.7));
+  }
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(255, 59, 59, 0.2));
+  }
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.category-card {
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: #171717;
+  color: var(--text-main);
+  text-align: left;
+  padding: 14px;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.category-card:hover {
+  border-color: var(--accent-dodo);
+  background: #202020;
+}
+
+.score-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-surface);
+  padding: 12px 20px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.main-offset {
+  padding-top: 74px;
+}
+
+@media (max-width: 420px) {
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+}

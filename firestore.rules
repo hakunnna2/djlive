@@ -1,0 +1,147 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAllowedUser() {
+      return request.auth != null && request.auth.token.email in ['dodo@dj.com', 'jojo@dj.com'];
+    }
+
+    function isPlayer(value) {
+      return value in ['DoDo', 'JoJo'];
+    }
+
+    function isStatus(value) {
+      return value in ['waiting', 'active', 'finished'];
+    }
+
+    function isSessionMode(value) {
+      return value in ['menu', 'playing'];
+    }
+
+    function isTossSide(value) {
+      return value in ['', 'Pile', 'Face'];
+    }
+
+    function hasValidScores(scores) {
+      return scores is map
+        && scores.keys().hasOnly(['DoDo', 'JoJo'])
+        && scores.DoDo is int
+        && scores.JoJo is int
+        && scores.DoDo >= 0
+        && scores.JoJo >= 0;
+    }
+
+    function hasValidTossClicks(clicks) {
+      return clicks is map
+        && clicks.keys().hasOnly(['DoDo', 'JoJo'])
+        && clicks.DoDo is bool
+        && clicks.JoJo is bool;
+    }
+
+    function hasValidTossChoices(choices) {
+      return choices is map
+        && choices.keys().hasOnly(['DoDo', 'JoJo'])
+        && choices.DoDo in ['', 'Pile', 'Face']
+        && choices.JoJo in ['', 'Pile', 'Face'];
+    }
+
+    function hasGameShape(data) {
+      return data.keys().hasOnly([
+        'challenger',
+        'target',
+        'category',
+        'question_text',
+        'question_options',
+        'correct_option_index',
+        'selected_option_index',
+        'timer_limit',
+        'start_time',
+        'status',
+        'score_pending',
+        'turn',
+        'scores',
+        'session_mode',
+        'needs_coin_toss',
+        'questions_answered',
+        'target_questions',
+        'toss_clicks',
+        'toss_choices',
+        'toss_side',
+        'toss_starter'
+      ]);
+    }
+
+    function hasGameTypes(data) {
+      return isPlayer(data.challenger)
+        && isPlayer(data.target)
+        && data.category is string
+        && data.question_text is string
+        && (data.question_options == null || data.question_options is list)
+        && (data.correct_option_index == null || (data.correct_option_index is int && data.correct_option_index >= -1 && data.correct_option_index <= 10))
+        && (data.selected_option_index == null || (data.selected_option_index is int && data.selected_option_index >= -1 && data.selected_option_index <= 10))
+        && data.timer_limit is int
+        && data.timer_limit >= 1
+        && isStatus(data.status)
+        && data.score_pending is bool
+        && isPlayer(data.turn)
+        && hasValidScores(data.scores)
+        && isSessionMode(data.session_mode)
+        && data.needs_coin_toss is bool
+        && data.questions_answered is int
+        && data.questions_answered >= 0
+        && data.target_questions is int
+        && data.target_questions > 0
+        && hasValidTossClicks(data.toss_clicks)
+        && hasValidTossChoices(data.toss_choices)
+        && isTossSide(data.toss_side)
+        && (data.toss_starter == '' || isPlayer(data.toss_starter));
+    }
+
+    function hasSafeScoreTransition() {
+      let oldTotal = resource.data.scores.DoDo + resource.data.scores.JoJo;
+      let newTotal = request.resource.data.scores.DoDo + request.resource.data.scores.JoJo;
+      return newTotal == oldTotal || newTotal == oldTotal + 1;
+    }
+
+    function validGameWrite() {
+      return hasGameShape(request.resource.data)
+        && hasGameTypes(request.resource.data)
+        && (!exists(resource.path) || hasSafeScoreTransition());
+    }
+
+    match /games/active_duel {
+      allow read: if isAllowedUser();
+      allow create, update: if isAllowedUser() && validGameWrite();
+      allow delete: if false;
+    }
+
+    function validHistoryWrite() {
+      return request.resource.data.keys().hasOnly([
+        'winner',
+        'loser',
+        'category',
+        'question_text',
+        'success',
+        'timestamp',
+        'scores_snapshot'
+      ])
+      && isPlayer(request.resource.data.winner)
+      && isPlayer(request.resource.data.loser)
+      && request.resource.data.winner != request.resource.data.loser
+      && request.resource.data.category is string
+      && request.resource.data.question_text is string
+      && request.resource.data.success is bool
+      && hasValidScores(request.resource.data.scores_snapshot)
+      && request.resource.data.timestamp == request.time;
+    }
+
+    match /game_history/{historyId} {
+      allow read: if isAllowedUser();
+      allow create: if isAllowedUser() && validHistoryWrite();
+      allow update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
